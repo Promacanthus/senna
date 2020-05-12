@@ -20,11 +20,6 @@ var env = "preproduction"
 
 func Init() {
 
-	viper.SetConfigName("pre")
-	viper.SetConfigName("prod")
-	viper.SetConfigName("tests")
-	viper.SetConfigType("json")
-
 	viper.AddConfigPath("./configuration")
 
 	env = os.Getenv("GO_ENV")
@@ -32,10 +27,19 @@ func Init() {
 		logrus.Warningln("Setting preproduction environment due to lack of GO_ENV value")
 		env = "preproduction"
 	}
-	LoadConfiguration()
+	LoadConfiguration(env)
 }
 
-func LoadConfiguration() {
+func LoadConfiguration(env string) {
+
+	switch env {
+	case "pre":
+		viper.SetConfigName("pre")
+	case "prod":
+		viper.SetConfigName("prod")
+	default:
+		viper.SetConfigName("tests")
+	}
 
 	err := viper.ReadInConfig()
 	if err != nil {
