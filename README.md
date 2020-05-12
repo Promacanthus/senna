@@ -10,6 +10,8 @@ Sample implementation using jwt
 |---|---|
 |[mux](https://github.com/gorilla/mux)|[gin](https://github.com/gin-gonic/gin)|
 |[jwt-go/v3](https://github.com/dgrijalva/jwt-go)|[jwt-go/v4](https://github.com/dgrijalva/jwt-go)|
+||[viper](https://github.com/spf13/viper)|
+
 
 这个项目是一个典型的MVC架构。
 

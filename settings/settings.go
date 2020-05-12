@@ -1,18 +1,12 @@
 package settings
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
-
-var environments = map[string]string{
-	"production":    "settings/prod.json",
-	"preproduction": "settings/pre.json",
-	"tests":         "settings/tests.json",
-}
 
 type Settings struct {
 	PrivateKeyPath     string
@@ -25,24 +19,38 @@ var settings Settings = Settings{}
 var env = "preproduction"
 
 func Init() {
+
+	viper.SetConfigName("pre")
+	viper.SetConfigName("prod")
+	viper.SetConfigName("tests")
+	viper.SetConfigType("json")
+
+	viper.AddConfigPath("./configuration")
+
 	env = os.Getenv("GO_ENV")
 	if env == "" {
 		logrus.Warningln("Setting preproduction environment due to lack of GO_ENV value")
 		env = "preproduction"
 	}
-	LoadSettingsByEnv(env)
+	LoadConfiguration()
 }
 
-func LoadSettingsByEnv(env string) {
-	content, err := ioutil.ReadFile(environments[env])
+func LoadConfiguration() {
+
+	err := viper.ReadInConfig()
 	if err != nil {
-		logrus.Fatalln("Error while reading config file", err)
+		logrus.Errorln(err)
 	}
-	settings = Settings{}
-	err = json.Unmarshal(content, &settings)
+
+	err = viper.Unmarshal(&settings)
 	if err != nil {
-		logrus.Fatalln("Error while parsing config file", err)
+		logrus.Fatalln(err)
 	}
+
+	viper.WatchConfig()
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		logrus.Println("配置发生变更：", in.Name)
+	})
 }
 
 func Get() Settings {
