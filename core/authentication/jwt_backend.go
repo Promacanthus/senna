@@ -40,7 +40,7 @@ func InitJWTAuthenticationBackend() *JWTAuthenticationBackend {
 
 func (j *JWTAuthenticationBackend) GenerateToken(userUUID string) (string, error) {
 
-	// creat a new token with a specified signing method and claims type
+	// creat a new token object with a specified signing method and the claims
 	token := jwtv4.New(jwtv4.SigningMethodRS512)
 
 	token.Claims = jwtv4.MapClaims{
@@ -49,6 +49,7 @@ func (j *JWTAuthenticationBackend) GenerateToken(userUUID string) (string, error
 		"sub": userUUID,
 	}
 
+	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(j.privateKey)
 	if err != nil {
 		return "", err
@@ -99,7 +100,7 @@ func getPrivateKey() *rsa.PrivateKey {
 	}
 
 	pemFileInfo, _ := privateKeyFile.Stat()
-	var size int64 = pemFileInfo.Size()
+	var size = pemFileInfo.Size()
 	pemBytes := make([]byte, size)
 
 	buffer := bufio.NewReader(privateKeyFile)
@@ -108,7 +109,7 @@ func getPrivateKey() *rsa.PrivateKey {
 		logrus.Fatalln(err)
 	}
 
-	data, _ := pem.Decode([]byte(pemBytes))
+	data, _ := pem.Decode(pemBytes)
 
 	privateKeyFile.Close()
 
@@ -125,22 +126,21 @@ func getPublicKey() *rsa.PublicKey {
 		panic(err)
 	}
 
-	pemfileinfo, _ := publicKeyFile.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
+	pemFileInfo, _ := publicKeyFile.Stat()
+	var size = pemFileInfo.Size()
+	pemBytes := make([]byte, size)
 
 	buffer := bufio.NewReader(publicKeyFile)
-	_, err = buffer.Read(pembytes)
+	_, err = buffer.Read(pemBytes)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
-	data, _ := pem.Decode([]byte(pembytes))
+	data, _ := pem.Decode(pemBytes)
 
 	publicKeyFile.Close()
 
 	publicKeyImported, err := x509.ParsePKIXPublicKey(data.Bytes)
-
 	if err != nil {
 		panic(err)
 	}
