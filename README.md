@@ -1,4 +1,4 @@
-# jwt-go-example
+# SENNA
 
 Sample implementation using jwt
 
